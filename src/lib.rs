@@ -1,4 +1,6 @@
 use std::collections::{BTreeSet, HashMap};
+use palette::IntoColor;
+use serde::{Deserialize, Serialize};
 use std::iter::FromIterator;
 
 use anyhow::Result;
@@ -15,6 +17,7 @@ fn linterp(x: f32, a: f32, b: f32) -> f32 {
     a * (1.0 - x) + x * b
 }
 
+#[derive(Debug)]
 pub struct Bulb {
     char_brightness: Characteristic,
     char_hue: Characteristic,
@@ -81,4 +84,54 @@ impl Bulb {
             .await?;
         Ok(())
     }
+
+    pub async fn get_state(&mut self) -> Result<BulbState> {
+        let hue = self.peripheral.read(&self.char_hue).await?;
+        let hue_rgb: palette::Srgb = palette::Yxy::new((hue[1] as f32) / 255.0, (hue[3] as f32) / 255.0, 1.0).into_color();
+        let brightness = self.peripheral.read(&self.char_brightness).await?;
+        Ok(BulbState {
+            rgb: [hue_rgb.red, hue_rgb.green, hue_rgb.blue],
+            brightness: brightness[0] as f32 / 255.0
+        })
+    }
 }
+
+pub struct BulbCmd {
+    pub bulb_id: String,
+    pub cmd: BulbCmdType,
+}
+
+pub enum BulbCmdType {
+    SetBrightness(f32),
+    SetHue([f32; 3]),
+    GetState,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BulbState {
+    pub rgb: [f32; 3],
+    pub brightness: f32,
+}
+
+impl BulbState {
+    pub fn diff(&self, other: &BulbState) -> Vec<BulbCmdType> {
+        let mut out = vec![];
+
+        if self.rgb != other.rgb {
+            out.push(BulbCmdType::SetHue(other.rgb))
+        }
+        
+        if self.brightness != other.brightness {
+            out.push(BulbCmdType::SetBrightness(other.brightness))
+        }
+
+        out
+    }
+}
+
+pub type BulbStates = std::collections::HashMap<String, BulbState>;
+
+pub fn serialize_bulb_states(bulb_states: &BulbStates) -> String {
+    "{}".to_string()
+}
+
