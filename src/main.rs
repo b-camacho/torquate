@@ -2,21 +2,13 @@ use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use std::f32::consts::PI;
 
-mod draggable;
+mod hover;
 
 fn main() {
-
-    let o1 = Vec3{x: 0f32, y: 0f32, z: 10f32};
-    let d1 = Vec3{x: 0f32, y: 0f32, z: -1f32};
-    let v11 = Vec3{x: 1f32, y:0f32, z: 0f32};
-    let v12 = Vec3{x: -1f32, y:0f32, z: 0f32};
-    let v13 = Vec3{x: 0f32, y:1f32, z: 0f32};
-    println!("{:?}", draggable::moller_trumbore(o1, d1, v11, v12, v13));
-
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup) // from prelude
-        .add_plugins(draggable::MouseRayPlugin)
+        .add_plugins(hover::MouseRayPlugin)
         .add_plugins(WorldInspectorPlugin::new())
         .run();
 }

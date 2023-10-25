@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 pub struct DraggablePlugin;
-use std::any::{Any, TypeId};
 
 use bevy::prelude::*;
 use bevy::render::mesh::VertexAttributeValues;
@@ -15,6 +13,14 @@ struct Hover;
 #[derive(Component, Default)]
 struct MouseRay {
     ray: Ray,
+}
+
+#[derive(Component)]
+struct Draggable;
+
+#[derive(Component)]
+struct Dragged {
+    start_pos: Vec3
 }
 
 fn add_mouse_ray(mut commands: Commands) {
@@ -36,9 +42,9 @@ fn update_mouse_ray(
             let clip_space_pos = Vec3::new(
                 cursor_pos.x / window_width * 2.0 - 1.0,
                 // cursor_pos is from a `winit::CursorMoved` event
-                // where positive x goes right and positive y goes down
+                // where positive x goes right and positive y goes **down**
                 // see https://docs.rs/winit/latest/winit/event/enum.WindowEvent.html#variant.CursorMoved
-                // in bevy, positive y goes up
+                // in bevy, positive y goes **up**
                 // flip y to convert
                 1.0 - (cursor_pos.y / window_height * 2.0),
                 0.0,
@@ -96,6 +102,58 @@ fn update_hover_end(
     }
 }
 
+fn update_drag_start(
+    mut commands: Commands,
+    mouse_button_input: Res<Input<MouseButton>>,
+    query: Query<(Entity, &Transform), With<Hover>>,
+    ) {
+    for (entity, transform) in &query {
+     if mouse_button_input.just_pressed(MouseButton::Left) {
+         commands.entity(entity).insert(Dragged {
+             start_pos: transform.translation
+         });
+     }
+    }
+}
+
+fn update_drag_end(
+    mut commands: Commands,
+    mouse_button_input: Res<Input<MouseButton>>,
+    query: Query<Entity, With<Dragged>>,
+    ) {
+    for entity in &query {
+     if mouse_button_input.just_released(MouseButton::Left) {
+         commands.entity(entity).remove::<Dragged>();
+     }
+    }
+}
+
+fn drag_system(
+    mut query: Query<(&mut Transform, &Dragged)>,
+    ray_query: Query<&MouseRay>,
+) {
+    for MouseRay{ray} in ray_query.iter() {
+        for (mut transform, dragged) in query.iter_mut() {
+            // Here, calculate the new position based on the ray's position
+            // For simplicity, let's assume that the ray's direction is normalized and that you want
+            // to move the object based on its intersection with a plane at z = 0
+
+            // Calculate intersection of ray with the plane at z = 0
+            if ray.direction.z.abs() > f32::EPSILON {
+                let t = -ray.origin.z / ray.direction.z;
+                let intersection_point = ray.origin + ray.direction * t;
+
+                // Calculate the offset from the start position
+                let offset = intersection_point - dragged.start_pos;
+                
+                // Update the position, but only in x and y
+                transform.translation.x = dragged.start_pos.x + offset.x;
+                transform.translation.y = dragged.start_pos.y + offset.y;
+            }
+        }
+    }
+}
+
 fn check_intersect(ray: &MouseRay, mesh: &Mesh, transform: &GlobalTransform) -> bool {
     if let Some(VertexAttributeValues::Float32x3(vertex_positions)) =
         mesh.attribute(Mesh::ATTRIBUTE_POSITION)
@@ -116,17 +174,12 @@ fn check_intersect(ray: &MouseRay, mesh: &Mesh, transform: &GlobalTransform) -> 
                 let v2 = mat.transform_point3(v2);
 
                 // Use Moller-Trumbore algorithm here to check for intersection
-                //println!("mt({:?}, {:?}, {:?}, {:?}, {:?}", ray.ray.origin, ray.ray.direction, v0, v1, v2);
                 if moller_trumbore(ray.ray.origin, ray.ray.direction, v0, v1, v2).is_some() {
                     return true
                 }
             }
         }
 
-        let indicies = mesh.indices().unwrap();
-        let mut idx = 0;
-        //println!("{vertex_positions:?}");
-        //dbg!(indicies);
     }
     false 
 }
@@ -185,6 +238,9 @@ impl Plugin for MouseRayPlugin {
         app.add_systems(Startup, add_mouse_ray)
             .add_systems(Update, update_mouse_ray)
             .add_systems(Update, update_hover_start)
-            .add_systems(Update, update_hover_end);
+            .add_systems(Update, update_hover_end)
+            .add_systems(Update, update_drag_start)
+            .add_systems(Update, update_drag_end)
+            .add_systems(Update, drag_system);
     }
 }
