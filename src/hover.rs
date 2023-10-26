@@ -134,21 +134,28 @@ fn drag_system(
 ) {
     for MouseRay{ray} in ray_query.iter() {
         for (mut transform, dragged) in query.iter_mut() {
-            // Here, calculate the new position based on the ray's position
-            // For simplicity, let's assume that the ray's direction is normalized and that you want
-            // to move the object based on its intersection with a plane at z = 0
+                        // Define the y-coordinate of the plane
+            let plane_y = dragged.start_pos.y; // Change this value as needed
 
-            // Calculate intersection of ray with the plane at z = 0
-            if ray.direction.z.abs() > f32::EPSILON {
-                let t = -ray.origin.z / ray.direction.z;
+            // Calculate the direction vector of the ray in the xy plane
+            let direction_xy = Vec3::new(ray.direction.x, 0.0, ray.direction.z);
+
+            // If the ray is not parallel to the plane
+            if direction_xy.length() > f32::EPSILON {
+                // Calculate intersection of ray with the plane at y = plane_y
+                let t = (plane_y - ray.origin.y) / ray.direction.y;
                 let intersection_point = ray.origin + ray.direction * t;
 
-                // Calculate the offset from the start position
-                let offset = intersection_point - dragged.start_pos;
+                // Calculate the offset from the start position, ignoring y
+                let offset = Vec3::new(
+                    intersection_point.x - dragged.start_pos.x,
+                    0.0,
+                    intersection_point.z - dragged.start_pos.z,
+                );
                 
-                // Update the position, but only in x and y
+                // Update the position, only in x and z
                 transform.translation.x = dragged.start_pos.x + offset.x;
-                transform.translation.y = dragged.start_pos.y + offset.y;
+                transform.translation.z = dragged.start_pos.z + offset.z;
             }
         }
     }
