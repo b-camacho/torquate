@@ -14,9 +14,46 @@ struct Hover;
 struct MouseRay {
     ray: Ray,
 }
+#[derive(Component)]
+pub struct MouseRaySource;
+
+impl MouseRay {
+    pub fn cursor_to_pos(position: &Vec2, window: &Window) -> Vec2 {
+            let (window_width, window_height) = (window.width(), window.height());
+            Vec2::new(
+                position.x / window_width * 2.0 - 1.0,
+                // cursor_pos is from a `winit::CursorMoved` event
+                // where positive x goes right and positive y goes **down**
+                // see https://docs.rs/winit/latest/winit/event/enum.WindowEvent.html#variant.CursorMoved
+                // in bevy, positive y goes **up**
+                // flip y to convert
+                1.0 - (position.y / window_height * 2.0),
+            )
+    }
+
+    pub fn pos_from_camera(
+        camera: &Camera,
+        transform: &GlobalTransform,
+        cursor_pos: Vec2, // [-1, 1]
+        ) -> Ray {
+            let clip_space_pos = Vec3::new(
+                cursor_pos.x,
+                cursor_pos.y,
+                0.0,
+            );
+            let inverse_projection = camera.projection_matrix().inverse();
+            let eye_space_pos = inverse_projection.transform_point3(clip_space_pos);
+            let world_space_pos = transform.compute_matrix() * eye_space_pos.extend(1.0);
+
+            Ray { 
+                origin: transform.translation(),
+                direction: (world_space_pos.truncate() - transform.translation()).normalize()
+            }
+    }
+}
 
 #[derive(Component)]
-struct Draggable;
+pub struct Draggable;
 
 #[derive(Component)]
 struct Dragged {
@@ -36,27 +73,9 @@ fn update_mouse_ray(
     if let (Ok(window), Ok(mut mouse_ray)) = (windows.get_single(), query.get_single_mut()) {
         for event in cursor_moved_events.iter() {
             let (camera, camera_transform) = camera_query.single();
-
-            let (window_width, window_height) = (window.width(), window.height());
-            let cursor_pos = event.position;
-            let clip_space_pos = Vec3::new(
-                cursor_pos.x / window_width * 2.0 - 1.0,
-                // cursor_pos is from a `winit::CursorMoved` event
-                // where positive x goes right and positive y goes **down**
-                // see https://docs.rs/winit/latest/winit/event/enum.WindowEvent.html#variant.CursorMoved
-                // in bevy, positive y goes **up**
-                // flip y to convert
-                1.0 - (cursor_pos.y / window_height * 2.0),
-                0.0,
-            );
-
-            let inverse_projection = camera.projection_matrix().inverse();
-            let eye_space_pos = inverse_projection.transform_point3(clip_space_pos);
-            let world_space_pos = camera_transform.compute_matrix() * eye_space_pos.extend(1.0);
-
-            mouse_ray.ray.origin = camera_transform.translation();
-            mouse_ray.ray.direction =
-                (world_space_pos.truncate() - camera_transform.translation()).normalize();
+            let cursor_pos = MouseRay::cursor_to_pos(&event.position, window);
+            let ray = MouseRay::pos_from_camera(camera, camera_transform, cursor_pos);
+            mouse_ray.ray = ray;
         }
     }
 }
@@ -105,7 +124,7 @@ fn update_hover_end(
 fn update_drag_start(
     mut commands: Commands,
     mouse_button_input: Res<Input<MouseButton>>,
-    query: Query<(Entity, &Transform), With<Hover>>,
+    query: Query<(Entity, &Transform), (With<Hover>, With<Draggable>)>,
     ) {
     for (entity, transform) in &query {
      if mouse_button_input.just_pressed(MouseButton::Left) {
@@ -153,7 +172,7 @@ fn drag_system(
                     intersection_point.z - dragged.start_pos.z,
                 );
                 
-                // Update the position, only in x and z
+                // update the position, only in x and z
                 transform.translation.x = dragged.start_pos.x + offset.x;
                 transform.translation.z = dragged.start_pos.z + offset.z;
             }
