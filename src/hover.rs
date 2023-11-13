@@ -2,10 +2,11 @@ use bevy::prelude::*;
 pub struct DraggablePlugin;
 
 use bevy::prelude::*;
+use std::collections::HashMap;
 use bevy::render::mesh::VertexAttributeValues;
 
 #[derive(Component)]
-struct Hoverable;
+pub struct Hoverable;
 
 #[derive(Component)]
 struct Hover;
@@ -16,6 +17,12 @@ struct MouseRay {
 }
 #[derive(Component)]
 pub struct MouseRaySource;
+
+#[derive(Resource)]
+struct HoverMaterial(Handle<StandardMaterial>);
+
+#[derive(Resource)]
+struct HoverMaterialStore(HashMap<Entity, Handle<StandardMaterial>>);
 
 impl MouseRay {
     pub fn cursor_to_pos(position: &Vec2, window: &Window) -> Vec2 {
@@ -64,6 +71,18 @@ fn add_mouse_ray(mut commands: Commands) {
     commands.spawn(MouseRay::default());
 }
 
+fn add_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMaterial>>) {
+
+    let hover_material = materials.add(StandardMaterial {
+        base_color: Color::RED,
+        ..Default::default()
+    });
+
+    commands.insert_resource(HoverMaterial(hover_material));
+    commands.insert_resource(HoverMaterialStore(HashMap::new()));
+
+}
+
 fn update_mouse_ray(
     mut query: Query<&mut MouseRay>,
     windows: Query<&Window>,
@@ -83,17 +102,21 @@ fn update_mouse_ray(
 fn update_hover_start(
     mut commands: Commands,
     mesh_assets: Res<Assets<Mesh>>,
-    mut material_assets: ResMut<Assets<StandardMaterial>>,
+    hover_material: ResMut<HoverMaterial>,
+    mut hover_material_store: ResMut<HoverMaterialStore>,
     ray_query: Query<&MouseRay>,
-    query: Query<(&Handle<Mesh>, &Handle<StandardMaterial>, &GlobalTransform, Entity), Without<Hover>>,
+    query: Query<(&Handle<Mesh>, &Handle<StandardMaterial>, &GlobalTransform, &Hoverable, Entity), Without<Hover>>,
 ) {
     for ray in ray_query.iter() {
-        for (mesh_handle, material_handle, transform, entity) in query.iter() {
+        for (mesh_handle, material_handle, transform, _, entity) in query.iter() {
             if let Some(mesh) = mesh_assets.get(mesh_handle) {
                 if check_intersect(ray, mesh, transform) {
+                    //println!("Intersected {:?}", entity);
                     commands.entity(entity).insert(Hover{});
-                    let mut material = material_assets.get_mut(material_handle).unwrap();
-                    material.base_color = Color::RED;
+
+                    hover_material_store.0.insert(entity, material_handle.clone());
+
+                    commands.entity(entity).insert(hover_material.0.clone());
                 }
             }
         }
@@ -103,23 +126,24 @@ fn update_hover_start(
 fn update_hover_end(
     mut commands: Commands,
     mesh_assets: Res<Assets<Mesh>>,
-    mut material_assets: ResMut<Assets<StandardMaterial>>,
+    mut hover_material_store: ResMut<HoverMaterialStore>,
     ray_query: Query<&MouseRay>,
     query: Query<(&Handle<Mesh>, &Handle<StandardMaterial>, &GlobalTransform, Entity), With<Hover>>,
 ) {
     for ray in ray_query.iter() {
-        for (mesh_handle, material_handle, transform, entity) in query.iter() {
+        for (mesh_handle, _material_handle, transform, entity) in query.iter() {
             if let Some(mesh) = mesh_assets.get(mesh_handle) {
                 if !check_intersect(ray, mesh, transform) {
-                    println!("Unintersected {:?}", entity);
-                    let mut material = material_assets.get_mut(material_handle).unwrap();
-                    material.base_color = Color::BLACK;
+                    if let Some(original_material_handle) = hover_material_store.0.remove(&entity) {
+                        commands.entity(entity).insert(original_material_handle);
+                    }
                     commands.entity(entity).remove::<Hover>();
                 }
             }
         }
     }
 }
+
 
 fn update_drag_start(
     mut commands: Commands,
@@ -184,10 +208,7 @@ fn check_intersect(ray: &MouseRay, mesh: &Mesh, transform: &GlobalTransform) -> 
     if let Some(VertexAttributeValues::Float32x3(vertex_positions)) =
         mesh.attribute(Mesh::ATTRIBUTE_POSITION)
     {
-        // todo: generalize to U16, ideally without calling a function
-        // this is the kind of thing that's really easy in C++ due to the
-        // "if it happens to have the methods I need, I'm happy" template system
-        if let Some(bevy::render::mesh::Indices::U32(indices)) = mesh.indices() {
+        let inner_fn = |indices: &Vec<u32>| {
             for tri in indices.chunks_exact(3) {
                 let v0 = Vec3::from(vertex_positions[tri[0] as usize]);
                 let v1 = Vec3::from(vertex_positions[tri[1] as usize]);
@@ -204,10 +225,16 @@ fn check_intersect(ray: &MouseRay, mesh: &Mesh, transform: &GlobalTransform) -> 
                     return true
                 }
             }
-        }
+            false
+        };
 
-    }
-    false 
+        match mesh.indices() {
+            Some(bevy::render::mesh::Indices::U32(indices)) => inner_fn(indices),
+            // TODO: very bad, clones mesh so I can avoid copy-pasting inner_fn
+            Some(bevy::render::mesh::Indices::U16(indices)) => inner_fn(&indices.iter().map(|x| *x as u32).collect()),
+            None => false,
+        }
+    } else { false }
 }
 
 pub fn moller_trumbore(
@@ -262,6 +289,7 @@ pub struct MouseRayPlugin;
 impl Plugin for MouseRayPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, add_mouse_ray)
+            .add_systems(Startup, add_materials)
             .add_systems(Update, update_mouse_ray)
             .add_systems(Update, update_hover_start)
             .add_systems(Update, update_hover_end)

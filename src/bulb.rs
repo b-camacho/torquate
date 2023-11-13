@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use crate::hover::Draggable;
+use crate::hover::{Draggable, Hoverable};
+use crate::util::*;
+use crate::hue::BulbState;
 
 #[derive(Component)]
 pub struct Bulb {
@@ -23,15 +25,6 @@ struct DistanceBounds { min: f32, max: f32 }
 
 
 
-trait MapRange {
-    fn map(&self, src: (f32, f32), dst: (f32, f32)) -> f32;
-}
-
-impl MapRange for f32 {
-    fn map(&self, src: (f32, f32), dst: (f32, f32)) -> f32 {
-        dst.0 + (self - src.0) * (dst.1 - dst.0) / (src.1 - src.0)
-    }
-}
 
 use std::f32::consts::PI;
 fn move_ghost(time: Res<Time>, mut query: Query<&mut Transform, With<Ghost>>) {
@@ -47,16 +40,22 @@ fn dim_by_distance(
     ghost_query: Query<&Transform, With<Ghost>>,
     intensity_bounds: Res<IntensityBounds>,
     distance_bounds: Res<DistanceBounds>,
+    bulb_state: ResMut<BulbState>,
     mut light_query: Query<(&mut PointLight, &Transform), With<Bulb>>,
 ) {
     let ghost = ghost_query.single();
     for (mut light, transform) in light_query.iter_mut() {
         let d = ghost.translation.distance(transform.translation);
-        light.intensity = intensity_bounds.max -
-            d.map(
+        let mapped_game = d.map(
                 (distance_bounds.min, distance_bounds.max),
-                (intensity_bounds.min, intensity_bounds.max)
+                (intensity_bounds.max, intensity_bounds.min) // swapped around because highest
+                                                             // distance = lowest intensity
                 );
+        light.intensity = mapped_game; 
+        let mapped_irl = d.map((distance_bounds.min, distance_bounds.max), (255.0, 0.0));
+        dbg!(mapped_game, mapped_irl);
+            
+        bulb_state.set_brightness(mapped_irl as u8);
     }
 }
 
@@ -104,7 +103,7 @@ fn spawn_ghost(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut mat
 
 
     commands.insert_resource(IntensityBounds{min: 20f32, max: 200f32});
-    commands.insert_resource(DistanceBounds{min: 5f32, max: 10f32});
+    commands.insert_resource(DistanceBounds{min: 1f32, max: 30f32});
 
 
     let material = materials.add(Color::rgb(0.7, 0.7, 0.7).into());
@@ -116,15 +115,16 @@ fn spawn_ghost(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut mat
             ..Default::default()
         })
         .insert(Ghost)
+        .insert(Hoverable)
         .insert(Draggable);
-
 }
 
 pub struct BulbPlugin;
 
 impl Plugin for BulbPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_ghost)
+        app.add_plugins(crate::hue::HuePlugin{})
+            .add_systems(Startup, spawn_ghost)
             //.add_systems(Update, move_ghost)
             .add_systems(Update, dim_by_distance);
     }

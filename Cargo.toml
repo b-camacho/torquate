@@ -12,3 +12,4 @@ bevy_debug_grid = "0.2.1"
 bevy_ecs = "0.11.3"
 bevy_flycam = "0.11.0"
 
+reqwest = { version = "0.11", features = ["blocking"] }
