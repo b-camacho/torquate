@@ -38,7 +38,7 @@ fn setup(
     let scene = asset_server.load("room.gltf#Scene0");
     commands.spawn(SceneBundle {
         scene,
-        transform: Transform::from_scale(Vec3{x: 5.0, y:5.0, z: 5.0}),
+        transform: Transform::from_scale(Vec3{x: 5.0, y:5.0, z: 5.0}).with_translation(Vec3{x: 0.0, y:-1.0, z:0.0}),
         ..default()
     });
 
@@ -52,7 +52,7 @@ fn setup(
         mesh: asset_server.load("lamp.gltf#Mesh0/Primitive0"), // glowy part
         material: materials.add(StandardMaterial { base_color: Color::YELLOW, emissive: Color::rgba_linear(10.0, 0.0,0.0,0.0), ..default()}),
         ..default()
-    }).insert(bulb::BulbBundle{ plb: PointLightBundle::default(), bulb: bulb::Bulb{index: 0}});
+    }).with_children(|parent| { parent.spawn(bulb::BulbBundle{ plb: PointLightBundle::default(), bulb: bulb::Bulb{index: 0}}).insert(SpatialBundle{transform: Transform::from_xyz(0.0, 8.0, 0.0), ..default()});});
     });
 
 

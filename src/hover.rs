@@ -196,9 +196,9 @@ fn drag_system(
                     intersection_point.z - dragged.start_pos.z,
                 );
                 
-                // update the position, only in x and z
-                transform.translation.x = dragged.start_pos.x + offset.x;
-                transform.translation.z = dragged.start_pos.z + offset.z;
+                // clamp to avoid placing objects outside of the room
+                transform.translation.x = (dragged.start_pos.x + offset.x).clamp(-20.0, 0.0);
+                transform.translation.z = (dragged.start_pos.z + offset.z).clamp(-20.0, 0.0)
             }
         }
     }
