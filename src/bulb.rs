@@ -37,15 +37,15 @@ fn move_ghost(time: Res<Time>, mut query: Query<&mut Transform, With<Ghost>>) {
 }
 
 fn dim_by_distance(
-    ghost_query: Query<&Transform, With<Ghost>>,
+    ghost_query: Query<&GlobalTransform, With<Ghost>>,
     intensity_bounds: Res<IntensityBounds>,
     distance_bounds: Res<DistanceBounds>,
     bulb_state: ResMut<BulbState>,
-    mut light_query: Query<(&mut PointLight, &Transform), With<Bulb>>,
+    mut light_query: Query<(&mut PointLight, &GlobalTransform), With<Bulb>>,
 ) {
     let ghost = ghost_query.single();
     for (mut light, transform) in light_query.iter_mut() {
-        let d = ghost.translation.distance(transform.translation);
+        let d = ghost.translation().distance(transform.translation());
         let mapped_game = d.map(
                 (distance_bounds.min, distance_bounds.max),
                 (intensity_bounds.max, intensity_bounds.min) // swapped around because highest

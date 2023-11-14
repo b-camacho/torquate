@@ -31,9 +31,9 @@ fn update_brightness(state: Arc<Mutex<State>>) -> Result<(), Error> {
         if last_sent.is_none() || last_sent.unwrap() != brightness {
             println!("egress: {brightness}");
             let body = format!(r#"{{"bri": {}}}"#, brightness);
-            client.put(&url_state)
-                .body(body)
-                .send()?;
+            //client.put(&url_state)
+            //    .body(body)
+            //    .send()?;
             last_sent = Some(brightness);
         }
         thread::sleep(Duration::from_millis(10));
