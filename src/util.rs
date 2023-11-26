@@ -1,14 +1,28 @@
 pub trait MapRange {
-    fn map(&self, src: (f32, f32), dst: (f32, f32)) -> f32;
+    type Num;
+    fn map(&self, src: (Self::Num, Self::Num), dst: (Self::Num, Self::Num)) -> Self::Num;
 }
 
 impl MapRange for f32 {
+    type Num = f32;
     fn map(&self, src: (f32, f32), dst: (f32, f32)) -> f32 {
         if src.0 == src.1 {
             return dst.0; // avoid div by 0
         }
         let m = (dst.1 - dst.0) / (src.1 - src.0);
-        let b = ((dst.0*src.1) - (dst.1*src.0)) / (src.1 - src.0);
+        let b = ((dst.0 * src.1) - (dst.1 * src.0)) / (src.1 - src.0);
+        // y = mx+b
+        (self * m) + b
+    }
+}
+impl MapRange for f64 {
+    type Num = f64;
+    fn map(&self, src: (f64, f64), dst: (f64, f64)) -> f64 {
+        if src.0 == src.1 {
+            return dst.0; // avoid div by 0
+        }
+        let m = (dst.1 - dst.0) / (src.1 - src.0);
+        let b = ((dst.0 * src.1) - (dst.1 * src.0)) / (src.1 - src.0);
         // y = mx+b
         (self * m) + b
     }
@@ -55,4 +69,3 @@ mod tests {
         assert_eq!(5e9.map((0.0, 1e10), (0.0, 100.0)), 50.0);
     }
 }
-

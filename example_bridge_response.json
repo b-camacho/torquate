@@ -1,0 +1,534 @@
+{
+  "1": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-05-24T21:14:32"
+    },
+    "type": "Extended color light",
+    "name": "TV Left",
+    "modelid": "LCA003",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "floorshade",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:6a:b2:f4-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "4FD50FDB",
+    "productid": "Philips-LCA003-1-A19ECLv6"
+  },
+  "2": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-05-23T21:21:18"
+    },
+    "type": "Extended color light",
+    "name": "TV Right",
+    "modelid": "LCA003",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "floorshade",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:6d:9b:20-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "4FD50FDB",
+    "productid": "Philips-LCA003-1-A19ECLv6"
+  },
+  "3": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-05-23T21:15:44"
+    },
+    "type": "Extended color light",
+    "name": "Couch Right",
+    "modelid": "LCA005",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "floorshade",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:5c:64:79-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "5419E9E3",
+    "productid": "Philips-LCA005-1-A19ECLv7"
+  },
+  "5": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-05-24T21:14:18"
+    },
+    "type": "Extended color light",
+    "name": "Bedroom",
+    "modelid": "LCA003",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "pendantround",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:6d:9b:33-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "4FD50FDB",
+    "productid": "Philips-LCA003-1-A19ECLv6"
+  },
+  "6": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-05-23T21:21:33"
+    },
+    "type": "Extended color light",
+    "name": "Couch Left",
+    "modelid": "LCA003",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "floorshade",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:6d:9d:ca-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "4FD50FDB",
+    "productid": "Philips-LCA003-1-A19ECLv6"
+  },
+  "7": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-07-20T21:21:11"
+    },
+    "type": "Extended color light",
+    "name": "Bed Right",
+    "modelid": "LCA005",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "tableshade",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:23:ed:f2-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "5419E9E3",
+    "productid": "Philips-LCA005-1-A19ECLv7"
+  },
+  "8": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 8632,
+      "sat": 117,
+      "effect": "none",
+      "xy": [
+        0.4425,
+        0.406
+      ],
+      "ct": 343,
+      "alert": "select",
+      "colormode": "ct",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-07-21T08:03:31"
+    },
+    "type": "Extended color light",
+    "name": "Bed Left",
+    "modelid": "LCA005",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue color lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 200,
+        "maxlumen": 800,
+        "colorgamuttype": "C",
+        "colorgamut": [
+          [
+            0.6915,
+            0.3083
+          ],
+          [
+            0.17,
+            0.7
+          ],
+          [
+            0.1532,
+            0.0475
+          ]
+        ],
+        "ct": {
+          "min": 153,
+          "max": 500
+        }
+      },
+      "streaming": {
+        "renderer": true,
+        "proxy": true
+      }
+    },
+    "config": {
+      "archetype": "tableshade",
+      "function": "mixed",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0b:23:f0:24-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "5419E9E3",
+    "productid": "Philips-LCA005-1-A19ECLv7"
+  },
+  "9": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "alert": "select",
+      "mode": "homeautomation",
+      "reachable": true
+    },
+    "swupdate": {
+      "state": "noupdates",
+      "lastinstall": "2023-07-24T21:37:39"
+    },
+    "type": "Dimmable light",
+    "name": "Staircase",
+    "modelid": "LWA003",
+    "manufacturername": "Signify Netherlands B.V.",
+    "productname": "Hue white lamp",
+    "capabilities": {
+      "certified": true,
+      "control": {
+        "mindimlevel": 5000,
+        "maxlumen": 800
+      },
+      "streaming": {
+        "renderer": false,
+        "proxy": false
+      }
+    },
+    "config": {
+      "archetype": "pendantround",
+      "function": "functional",
+      "direction": "omnidirectional",
+      "startup": {
+        "mode": "safety",
+        "configured": true
+      }
+    },
+    "uniqueid": "00:17:88:01:0c:e8:94:3c-0b",
+    "swversion": "1.104.2",
+    "swconfigid": "8FB9F788",
+    "productid": "Philips-LWA003-1-A19DLv5"
+  }
+}

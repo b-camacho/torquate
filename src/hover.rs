@@ -2,8 +2,8 @@ use bevy::prelude::*;
 pub struct DraggablePlugin;
 
 use bevy::prelude::*;
-use std::collections::HashMap;
 use bevy::render::mesh::VertexAttributeValues;
+use std::collections::HashMap;
 
 #[derive(Component)]
 pub struct Hoverable;
@@ -26,36 +26,32 @@ struct HoverMaterialStore(HashMap<Entity, Handle<StandardMaterial>>);
 
 impl MouseRay {
     pub fn cursor_to_pos(position: &Vec2, window: &Window) -> Vec2 {
-            let (window_width, window_height) = (window.width(), window.height());
-            Vec2::new(
-                position.x / window_width * 2.0 - 1.0,
-                // cursor_pos is from a `winit::CursorMoved` event
-                // where positive x goes right and positive y goes **down**
-                // see https://docs.rs/winit/latest/winit/event/enum.WindowEvent.html#variant.CursorMoved
-                // in bevy, positive y goes **up**
-                // flip y to convert
-                1.0 - (position.y / window_height * 2.0),
-            )
+        let (window_width, window_height) = (window.width(), window.height());
+        Vec2::new(
+            position.x / window_width * 2.0 - 1.0,
+            // cursor_pos is from a `winit::CursorMoved` event
+            // where positive x goes right and positive y goes **down**
+            // see https://docs.rs/winit/latest/winit/event/enum.WindowEvent.html#variant.CursorMoved
+            // in bevy, positive y goes **up**
+            // flip y to convert
+            1.0 - (position.y / window_height * 2.0),
+        )
     }
 
     pub fn pos_from_camera(
         camera: &Camera,
         transform: &GlobalTransform,
         cursor_pos: Vec2, // [-1, 1]
-        ) -> Ray {
-            let clip_space_pos = Vec3::new(
-                cursor_pos.x,
-                cursor_pos.y,
-                0.0,
-            );
-            let inverse_projection = camera.projection_matrix().inverse();
-            let eye_space_pos = inverse_projection.transform_point3(clip_space_pos);
-            let world_space_pos = transform.compute_matrix() * eye_space_pos.extend(1.0);
+    ) -> Ray {
+        let clip_space_pos = Vec3::new(cursor_pos.x, cursor_pos.y, 0.0);
+        let inverse_projection = camera.projection_matrix().inverse();
+        let eye_space_pos = inverse_projection.transform_point3(clip_space_pos);
+        let world_space_pos = transform.compute_matrix() * eye_space_pos.extend(1.0);
 
-            Ray { 
-                origin: transform.translation(),
-                direction: (world_space_pos.truncate() - transform.translation()).normalize()
-            }
+        Ray {
+            origin: transform.translation(),
+            direction: (world_space_pos.truncate() - transform.translation()).normalize(),
+        }
     }
 }
 
@@ -64,7 +60,7 @@ pub struct Draggable;
 
 #[derive(Component)]
 struct Dragged {
-    start_pos: Vec3
+    start_pos: Vec3,
 }
 
 fn add_mouse_ray(mut commands: Commands) {
@@ -72,7 +68,6 @@ fn add_mouse_ray(mut commands: Commands) {
 }
 
 fn add_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMaterial>>) {
-
     let hover_material = materials.add(StandardMaterial {
         base_color: Color::RED,
         ..Default::default()
@@ -80,7 +75,6 @@ fn add_materials(mut commands: Commands, mut materials: ResMut<Assets<StandardMa
 
     commands.insert_resource(HoverMaterial(hover_material));
     commands.insert_resource(HoverMaterialStore(HashMap::new()));
-
 }
 
 fn update_mouse_ray(
@@ -105,16 +99,27 @@ fn update_hover_start(
     hover_material: ResMut<HoverMaterial>,
     mut hover_material_store: ResMut<HoverMaterialStore>,
     ray_query: Query<&MouseRay>,
-    query: Query<(&Handle<Mesh>, &Handle<StandardMaterial>, &GlobalTransform, &Hoverable, Entity), Without<Hover>>,
+    query: Query<
+        (
+            &Handle<Mesh>,
+            &Handle<StandardMaterial>,
+            &GlobalTransform,
+            &Hoverable,
+            Entity,
+        ),
+        Without<Hover>,
+    >,
 ) {
     for ray in ray_query.iter() {
         for (mesh_handle, material_handle, transform, _, entity) in query.iter() {
             if let Some(mesh) = mesh_assets.get(mesh_handle) {
                 if check_intersect(ray, mesh, transform) {
                     //println!("Intersected {:?}", entity);
-                    commands.entity(entity).insert(Hover{});
+                    commands.entity(entity).insert(Hover {});
 
-                    hover_material_store.0.insert(entity, material_handle.clone());
+                    hover_material_store
+                        .0
+                        .insert(entity, material_handle.clone());
 
                     commands.entity(entity).insert(hover_material.0.clone());
                 }
@@ -128,7 +133,15 @@ fn update_hover_end(
     mesh_assets: Res<Assets<Mesh>>,
     mut hover_material_store: ResMut<HoverMaterialStore>,
     ray_query: Query<&MouseRay>,
-    query: Query<(&Handle<Mesh>, &Handle<StandardMaterial>, &GlobalTransform, Entity), With<Hover>>,
+    query: Query<
+        (
+            &Handle<Mesh>,
+            &Handle<StandardMaterial>,
+            &GlobalTransform,
+            Entity,
+        ),
+        With<Hover>,
+    >,
 ) {
     for ray in ray_query.iter() {
         for (mesh_handle, _material_handle, transform, entity) in query.iter() {
@@ -144,18 +157,17 @@ fn update_hover_end(
     }
 }
 
-
 fn update_drag_start(
     mut commands: Commands,
     mouse_button_input: Res<Input<MouseButton>>,
     query: Query<(Entity, &Transform), (With<Hover>, With<Draggable>)>,
-    ) {
+) {
     for (entity, transform) in &query {
-     if mouse_button_input.just_pressed(MouseButton::Left) {
-         commands.entity(entity).insert(Dragged {
-             start_pos: transform.translation
-         });
-     }
+        if mouse_button_input.just_pressed(MouseButton::Left) {
+            commands.entity(entity).insert(Dragged {
+                start_pos: transform.translation,
+            });
+        }
     }
 }
 
@@ -163,21 +175,18 @@ fn update_drag_end(
     mut commands: Commands,
     mouse_button_input: Res<Input<MouseButton>>,
     query: Query<Entity, With<Dragged>>,
-    ) {
+) {
     for entity in &query {
-     if mouse_button_input.just_released(MouseButton::Left) {
-         commands.entity(entity).remove::<Dragged>();
-     }
+        if mouse_button_input.just_released(MouseButton::Left) {
+            commands.entity(entity).remove::<Dragged>();
+        }
     }
 }
 
-fn drag_system(
-    mut query: Query<(&mut Transform, &Dragged)>,
-    ray_query: Query<&MouseRay>,
-) {
-    for MouseRay{ray} in ray_query.iter() {
+fn drag_system(mut query: Query<(&mut Transform, &Dragged)>, ray_query: Query<&MouseRay>) {
+    for MouseRay { ray } in ray_query.iter() {
         for (mut transform, dragged) in query.iter_mut() {
-                        // Define the y-coordinate of the plane
+            // Define the y-coordinate of the plane
             let plane_y = dragged.start_pos.y; // Change this value as needed
 
             // Calculate the direction vector of the ray in the xy plane
@@ -195,7 +204,7 @@ fn drag_system(
                     0.0,
                     intersection_point.z - dragged.start_pos.z,
                 );
-                
+
                 // clamp to avoid placing objects outside of the room
                 transform.translation.x = (dragged.start_pos.x + offset.x).clamp(-20.0, 0.0);
                 transform.translation.z = (dragged.start_pos.z + offset.z).clamp(-20.0, 0.0)
@@ -222,7 +231,7 @@ fn check_intersect(ray: &MouseRay, mesh: &Mesh, transform: &GlobalTransform) -> 
 
                 // Use Moller-Trumbore algorithm here to check for intersection
                 if moller_trumbore(ray.ray.origin, ray.ray.direction, v0, v1, v2).is_some() {
-                    return true
+                    return true;
                 }
             }
             false
@@ -231,10 +240,14 @@ fn check_intersect(ray: &MouseRay, mesh: &Mesh, transform: &GlobalTransform) -> 
         match mesh.indices() {
             Some(bevy::render::mesh::Indices::U32(indices)) => inner_fn(indices),
             // TODO: very bad, clones mesh so I can avoid copy-pasting inner_fn
-            Some(bevy::render::mesh::Indices::U16(indices)) => inner_fn(&indices.iter().map(|x| *x as u32).collect()),
+            Some(bevy::render::mesh::Indices::U16(indices)) => {
+                inner_fn(&indices.iter().map(|x| *x as u32).collect())
+            }
             None => false,
         }
-    } else { false }
+    } else {
+        false
+    }
 }
 
 pub fn moller_trumbore(
@@ -244,7 +257,6 @@ pub fn moller_trumbore(
     v1: Vec3,
     v2: Vec3,
 ) -> Option<f32> {
-
     //
     let epsilon = 0.000_001;
     let edge1 = v1 - v0;
@@ -268,7 +280,7 @@ pub fn moller_trumbore(
     let v = f * ray_direction.dot(q);
 
     if v < 0.0 || u + v > 1.0 {
-        let upv = u+v;
+        let upv = u + v;
         return None;
     }
 
